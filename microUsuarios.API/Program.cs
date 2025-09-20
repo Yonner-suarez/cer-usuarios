@@ -44,6 +44,7 @@ builder.Services.AddResponseCompression(options =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssembly(typeof(AgregarUsuarioValidator).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(IniciarSesionValidator).Assembly);
 
 // Controladores + Filtros
 builder.Services.AddControllers(options =>
@@ -100,7 +101,7 @@ if (app.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1.0.0");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1.0.1");
 });
 
 app.UseRouting();
