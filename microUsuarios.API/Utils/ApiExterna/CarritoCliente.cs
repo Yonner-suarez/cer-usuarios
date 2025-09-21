@@ -16,7 +16,7 @@ namespace microUsuarios.API.Utils.ApiExterna
         public static async Task<CarritoResponse> ObtenerCarritoAsync(string token)
         {
             var baseUrl = Variables.APICOMPRAS.url;
-            var requestUrl = $"{baseUrl}/api/v1/Carrito";
+            var requestUrl = $"{baseUrl}/api/v1/Pedido/Carrito";
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, requestUrl))
             {
