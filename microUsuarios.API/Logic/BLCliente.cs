@@ -3,6 +3,7 @@ using microUsuarios.API.Model.Request;
 using microUsuarios.API.Model;
 using microUsuarios.API.Utils;
 using microUsuarios.API.Model.Response;
+using microUsuarios.API.Utils.ApiExterna;
 
 namespace microUsuarios.API.Logic
 {
@@ -48,7 +49,7 @@ namespace microUsuarios.API.Logic
             return res;
         }
 
-        public static GeneralResponse ObtenerCliente(int idCliente)
+        public static async Task<GeneralResponse> ObtenerCliente(int idCliente)
         {
             //Validar que no exista un cliente con correo o numero de doc en la DB
             var cliente = DACliente.ObtenerCliente(idCliente);
@@ -57,8 +58,21 @@ namespace microUsuarios.API.Logic
                 return cliente;
             }
             //Obtener Carrito al api de pedidos
-            //var res = DACliente.CrearCliente(request);
-            return res;
+            var cliente_aux = (ClienteResponse)cliente.data;
+            string token = JWTHelper.GenerarToken(cliente_aux.Id, cliente_aux.Correo, cliente_aux.Rol);
+            var carrito_cliente = await CarritoCliente.ObtenerCarritoAsync(token);
+            if (carrito_cliente?.Items != null)
+            {
+                cliente_aux.Items = carrito_cliente.Items;
+            }
+
+            // Retornar en GeneralResponse
+            return new GeneralResponse
+            {
+                status = Variables.Response.OK,
+                message = "Cliente obtenido correctamente",
+                data = cliente_aux
+            };
         }
     }
 }

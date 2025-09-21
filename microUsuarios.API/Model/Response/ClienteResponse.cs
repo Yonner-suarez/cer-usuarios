@@ -12,6 +12,7 @@
         public DateTime FechaCreacion { get; set; }
         public int CreadoPor { get; set; }
         public string Rol { get; set; }
+        public List<CarritoItem> Items { get; set; } = new();
     }
 
 }
