@@ -32,45 +32,6 @@ namespace microUsuarios.API.Utils
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        public static ClaimsPrincipal? ValidarToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(Variables.Token.Llave);
-
-            try
-            {
-                var validationParams = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    ValidIssuer = Variables.Token.Bearer,
-                    ValidAudience = Variables.Token.Bearer,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ClockSkew = TimeSpan.Zero // no tolerancia al retraso
-                };
-
-                var principal = tokenHandler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
-
-                // Opcional: verificar que el algoritmo sea HmacSha256
-                if (validatedToken is JwtSecurityToken jwt &&
-                    jwt.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return principal;
-                }
-
-                return null;
-            }
-            catch
-            {
-                return null; // Token inválido
-            }
-        }
-
-        public static string? GetClaimValue(ClaimsPrincipal principal, string claimType)
-        {
-            return principal?.Claims.FirstOrDefault(c => c.Type == claimType)?.Value;
-        }
+        
     }
 }
