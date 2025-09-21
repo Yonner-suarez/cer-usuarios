@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using microUsuarios.API.Logic;
+using microUsuarios.API.Model;
 using microUsuarios.API.Model.Request;
 using microUsuarios.API.Utils;
 using System.ComponentModel.DataAnnotations;
@@ -52,7 +53,16 @@ namespace microUsuarios.API.Controllers
             var claims = identity.Claims;
             var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            if (role != "Cliente") return StatusCode(Variables.Response.BadRequest, "Solo el cliente puede eliminar su cuenta");
+            if (role != "Cliente")
+            {
+                return StatusCode(Variables.Response.BadRequest, new GeneralResponse
+                {
+                    data = null,
+                    status = Variables.Response.BadRequest,
+                    message = "Solo el cliente puede eliminar su cuenta"
+                });
+            }
+
             var idCliente = int.Parse(claims.FirstOrDefault(c => c.Type == "idUser")?.Value);
 
             var res = BLCliente.EliminarCuentaCliente(idCliente);
@@ -76,7 +86,16 @@ namespace microUsuarios.API.Controllers
             var claims = identity.Claims;
             var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            if (role != "Cliente") return StatusCode(Variables.Response.BadRequest, "Solo el cliente puede acceder su cuenta");
+            if (role != "Cliente")
+            {
+                return StatusCode(Variables.Response.BadRequest, new GeneralResponse
+                {
+                    data = null,
+                    status = Variables.Response.BadRequest,
+                    message = "Solo el cliente puede acceder su cuenta"
+                });
+            }
+
             var idCliente = int.Parse(claims.FirstOrDefault(c => c.Type == "idUser")?.Value);
 
             var res = await BLCliente.ObtenerCliente(idCliente );

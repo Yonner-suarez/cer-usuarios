@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using microUsuarios.API.Logic;
+using microUsuarios.API.Model;
 using microUsuarios.API.Model.Request;
 using microUsuarios.API.Utils;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Security.Claims;
 using System.Security.Principal;
 using static microUsuarios.API.Utils.Variables;
@@ -39,7 +41,16 @@ namespace microUsuarios.API.Controllers
             var claims = identity.Claims;
             var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            if(role != "Administrador") return StatusCode(Variables.Response.BadRequest, "Solo los Administradores puede crear un Empleado");
+            if (role != "Administrador")
+            {
+                return StatusCode(Variables.Response.BadRequest, new GeneralResponse
+                {
+                    data = null,
+                    status = Variables.Response.BadRequest,
+                    message = "Solo los Administradores pueden crear un Empleado"
+                });
+            }
+
 
             var res = BLEmpleado.CrearEmpleado(request);
             if (res.status == Variables.Response.OK)
@@ -52,7 +63,7 @@ namespace microUsuarios.API.Controllers
             }
         }
 
-        [HttpGet("/{idEmpleado}")] // Admin o Logística
+        [HttpGet("/{idEmpleado}")] // Admin 
         public IActionResult ObtenerEmpleado([Required] int idEmpleado)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -62,7 +73,16 @@ namespace microUsuarios.API.Controllers
             var claims = identity.Claims;
             var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            if (role != "Administrador") return StatusCode(Variables.Response.BadRequest, "Solo los Administradores puede crear un Empleado");
+            if (role != "Administrador")
+            {
+                return StatusCode(Variables.Response.BadRequest, new GeneralResponse
+                {
+                    data = null,
+                    status = Variables.Response.BadRequest,
+                    message = "Solo los Administradores pueden crear un Empleado"
+                });
+            }
+
 
             var res = BLEmpleado.ObtenerEmpleado(idEmpleado);
             if (res.status == Variables.Response.OK)
@@ -79,6 +99,19 @@ namespace microUsuarios.API.Controllers
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity == null) return StatusCode(Variables.Response.Inautorizado, null);
+
+            var claims = identity.Claims;
+            var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == "Cliente")
+            {
+                return StatusCode(Variables.Response.BadRequest, new GeneralResponse
+                {
+                    data = null,
+                    status = Variables.Response.BadRequest,
+                    message = "Solo los admins y logistica puede acceder a la vista de empleados"
+                });
+            }
+
 
             var res = BLEmpleado.ObtenerEmpleados();
             if (res.status == Variables.Response.OK)
@@ -99,7 +132,16 @@ namespace microUsuarios.API.Controllers
             var claims = identity.Claims;
             var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            if (role != "Administrador") return StatusCode(Variables.Response.BadRequest, "Solo los Administradores puede crear un Empleado");
+            if (role != "Administrador")
+            {
+                return StatusCode(Variables.Response.BadRequest, new GeneralResponse
+                {
+                    data = null,
+                    status = Variables.Response.BadRequest,
+                    message = "Solo los Administradores pueden crear un Empleado"
+                });
+            }
+
 
             var res = BLEmpleado.EliminarEmpleado(idEmpleado, idAdmin);
             if (res.status == Variables.Response.OK)
