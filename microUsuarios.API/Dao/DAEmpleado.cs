@@ -219,12 +219,13 @@ namespace microUsuarios.API.Dao
                     cer_varchar_nombre,
                     cer_varchar_correo,
                     cer_varchar_nro_documento,
+                    cer_varchar_contraseña,
                     cer_enum_rol,
                     cer_enum_tipo_persona,
                     cer_datetime_created_at,
                     cer_int_created_by
                 FROM tbl_cer_usuario
-                WHERE cer_enum_rol IN ('Administrador','Logistica');";
+                WHERE cer_enum_rol IN ('Administrador','Logistica') and cer_tinyint_estado = 1 ;";
 
                     var cmd = new MySqlCommand(sqlSelect, conn);
 
@@ -238,6 +239,7 @@ namespace microUsuarios.API.Dao
                                 Nombre = reader["cer_varchar_nombre"].ToString(),
                                 Correo = reader["cer_varchar_correo"].ToString(),
                                 Documento = reader["cer_varchar_nro_documento"].ToString(),
+                                Contrasenia = reader["cer_varchar_contraseña"].ToString(),
                                 Rol = reader["cer_enum_rol"].ToString(),
                                 TipoPersona = reader["cer_enum_tipo_persona"].ToString(),
                                 FechaCreacion = reader["cer_datetime_created_at"] != DBNull.Value
@@ -247,6 +249,11 @@ namespace microUsuarios.API.Dao
                                     ? Convert.ToInt32(reader["cer_int_created_by"])
                                     : 0
                             };
+
+                            if (empleado != null) 
+                            {
+                                empleado.Contrasenia = new Encrypt().Decrypt(empleado.Contrasenia);
+                            }
 
                             empleados.Add(empleado);
                         }
@@ -382,6 +389,85 @@ namespace microUsuarios.API.Dao
             return response;
         }
 
+        public static GeneralResponse ActualizarEmpleado(AgregarUsuarioRequest request, int idUsuario)
+        {
+            var response = new GeneralResponse();
+
+            using (MySqlConnection conn = new MySqlConnection(Variables.Conexion.cnx))
+            {
+                try
+                {
+                    conn.Open();
+                    string sql = @"
+                                    UPDATE tbl_cer_usuario 
+                                    SET 
+                                        cer_varchar_nombre = @Nombre,
+                                        cer_varchar_correo = @Correo,
+                                        cer_varchar_nro_documento = @Documento,
+                                        cer_varchar_contraseña = @Contrasena,
+                                        cer_enum_rol = @Rol,
+                                        cer_enum_tipo_persona = @TipoPersona,
+                                        cer_varchar_codigo_postal = @CodigoPostal,
+                                        cer_varchar_direccion = @Direccion,
+                                        cer_int_updated_by = @UpdatedBy,
+                                        cer_datetime_updated_at = NOW()
+                                    WHERE cer_int_id_usuario = @IdUsuario;";
+
+                    var cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@Nombre", request.Nombre);
+                    cmd.Parameters.AddWithValue("@Correo", request.Correo);
+                    cmd.Parameters.AddWithValue("@Documento", request.NroDocumento);
+                    cmd.Parameters.AddWithValue("@Contrasena", new Encrypt().Encript(request.Contrasenia));
+                    cmd.Parameters.AddWithValue("@Rol", request.Cargo);
+                    cmd.Parameters.AddWithValue("@TipoPersona", Variables.TipoPersona.Natural);
+                    cmd.Parameters.AddWithValue("@CodigoPostal", "");
+                    cmd.Parameters.AddWithValue("@Direccion", "");
+
+                    if (request.IdAdmin == 0)
+                    {
+                        response.status = Variables.Response.BadRequest;
+                        response.message = "No se proporcionó el id de administrador que intenta actualizar el empleado.";
+                        return response;
+                    }
+                    cmd.Parameters.AddWithValue("@UpdatedBy", request.IdAdmin);
+
+                    if (idUsuario == 0)
+                    {
+                        response.status = Variables.Response.BadRequest;
+                        response.message = "No se proporcionó el id del empleado a actualizar.";
+                        return response;
+                    }
+                    cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        response.status = Variables.Response.OK;
+                        response.message = "Empleado actualizado correctamente.";
+                        response.data = true;
+                    }
+                    else
+                    {
+                        response.status = Variables.Response.BadRequest;
+                        response.message = "No se encontró el empleado para actualizar.";
+                        response.data = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    response.status = Variables.Response.ERROR;
+                    response.message = "Error al actualizar empleado: " + ex.Message;
+                    response.data = null;
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+
+            return response;
+        }
 
     }
 }

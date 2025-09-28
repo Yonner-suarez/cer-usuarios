@@ -55,5 +55,17 @@ namespace microUsuarios.API.Logic
             var res = DAEmpleado.EliminarEmpleado(idEmpleado, idAdmin);
             return res;
         }
+
+        public static GeneralResponse ActualizarEmpleado(AgregarUsuarioRequest request, int idUsuario)
+        {
+            //Validar que no exista un empleado con nuemro de documento o correo repetido 
+            var validar = DAEmpleado.ValidarEmpleado(request);
+            if (validar.status == Variables.Response.OK && (bool)validar.data == false)
+            {
+                return validar;
+            }
+            var res = DAEmpleado.ActualizarEmpleado(request, idUsuario);
+            return res;
+        }
     }
 }

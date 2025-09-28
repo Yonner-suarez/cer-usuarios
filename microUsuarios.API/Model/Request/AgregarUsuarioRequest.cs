@@ -24,5 +24,9 @@
         /// direccion del cliente
         /// </summary>
         public string Direccion { get; set; } = "";
+        /// <summary>
+        /// Nro de telefono
+        /// </summary>
+        public string Telefono { get; set; } = "";
     }
 }

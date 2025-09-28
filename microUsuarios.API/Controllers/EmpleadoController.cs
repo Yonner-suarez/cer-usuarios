@@ -123,8 +123,8 @@ namespace microUsuarios.API.Controllers
                 return StatusCode(res.status, res);
             }
         }
-        [HttpDelete("/{idEmpleado}/{idAdmin}")]
-        public IActionResult EliminarEmpleado([Required] int idEmpleado, int idAdmin)
+        [HttpDelete("{idEmpleado}/{idAdmin}")]
+        public IActionResult EliminarEmpleado([Required] int idEmpleado, [Required] int idAdmin)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity == null) return StatusCode(Variables.Response.Inautorizado, null);
@@ -144,6 +144,38 @@ namespace microUsuarios.API.Controllers
 
 
             var res = BLEmpleado.EliminarEmpleado(idEmpleado, idAdmin);
+            if (res.status == Variables.Response.OK)
+            {
+                return Ok(res);
+            }
+            else
+            {
+                return StatusCode(res.status, res);
+            }
+        }
+
+        [HttpPut("{idUsuario}")] // Admin o Logística
+        public IActionResult EmpleadoData(AgregarUsuarioRequest request,[Required] int idUsuario)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity == null) return StatusCode(Variables.Response.Inautorizado, null);
+
+
+            var claims = identity.Claims;
+            var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != "Administrador")
+            {
+                return StatusCode(Variables.Response.BadRequest, new GeneralResponse
+                {
+                    data = null,
+                    status = Variables.Response.BadRequest,
+                    message = "Solo los Administradores pueden crear un Empleado"
+                });
+            }
+
+
+            var res = BLEmpleado.ActualizarEmpleado(request, idUsuario);
             if (res.status == Variables.Response.OK)
             {
                 return Ok(res);

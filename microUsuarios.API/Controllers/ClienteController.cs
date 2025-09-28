@@ -108,6 +108,39 @@ namespace microUsuarios.API.Controllers
                 return StatusCode(res.status, res);
             }
         }
+        [HttpPut("")]
+        public IActionResult ClienteActualizar(AgregarUsuarioRequest request)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity == null) return StatusCode(Variables.Response.Inautorizado, null);
+
+
+            var claims = identity.Claims;
+            var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role != "Cliente")
+            {
+                return StatusCode(Variables.Response.BadRequest, new GeneralResponse
+                {
+                    data = null,
+                    status = Variables.Response.BadRequest,
+                    message = "Solo el cliente puede acceder su cuenta"
+                });
+            }
+
+            var idCliente = int.Parse(claims.FirstOrDefault(c => c.Type == "idUser")?.Value);
+            
+            //No se necesita es tener aut para este EP porque el cliente aun no existe
+            var res = BLCliente.ActualizarCliente(idCliente,request);
+            if (res.status == Variables.Response.OK)
+            {
+                return Ok(res);
+            }
+            else
+            {
+                return StatusCode(res.status, res);
+            }
+        }
 
     }
 }

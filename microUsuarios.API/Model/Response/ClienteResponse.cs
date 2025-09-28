@@ -9,6 +9,8 @@
         public string TipoPersona { get; set; }
         public string CodigoPostal { get; set; }
         public string Direccion { get; set; }
+        public string Telefono { get; set; }
+        public string Contrasenia { get; set; }
         public DateTime FechaCreacion { get; set; }
         public int CreadoPor { get; set; }
         public string Rol { get; set; }

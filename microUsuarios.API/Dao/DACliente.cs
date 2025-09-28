@@ -35,7 +35,9 @@ namespace microUsuarios.API.Dao
                                             cer_varchar_direccion,
                                             cer_datetime_created_at,
                                             cer_int_created_by,
-                                            cer_enum_rol
+                                            cer_enum_rol,
+                                            cer_varchar_nro_telefono,
+                                            cer_varchar_contraseña
                                         FROM tbl_cer_usuario
                                         WHERE cer_int_id_usuario = @IdCliente
                                           AND cer_enum_rol = 'Cliente'
@@ -55,7 +57,9 @@ namespace microUsuarios.API.Dao
                                             cer_varchar_direccion,
                                             cer_datetime_created_at,
                                             cer_int_created_by,
-                                            cer_enum_rol
+                                            cer_enum_rol,
+                                            cer_varchar_nro_telefono,
+                                            cer_varchar_contraseña
                                         FROM tbl_cer_usuario
                                         WHERE cer_varchar_correo = @Correo
                                           AND cer_varchar_contraseña = @Contrasena
@@ -93,6 +97,8 @@ namespace microUsuarios.API.Dao
                             cliente.TipoPersona = reader["cer_enum_tipo_persona"].ToString();
                             cliente.CodigoPostal = reader["cer_varchar_codigo_postal"].ToString();
                             cliente.Direccion = reader["cer_varchar_direccion"].ToString();
+                            cliente.Telefono = reader["cer_varchar_nro_telefono"].ToString();
+                            cliente.Contrasenia = new Encrypt().Decrypt(reader["cer_varchar_contraseña"].ToString());
                             cliente.FechaCreacion = reader["cer_datetime_created_at"] != DBNull.Value
                                 ? Convert.ToDateTime(reader["cer_datetime_created_at"])
                                 : DateTime.MinValue;
@@ -205,6 +211,73 @@ namespace microUsuarios.API.Dao
 
             return response;
         }
+        public static GeneralResponse ActualizarCliente(int idUsuario, AgregarUsuarioRequest request)
+        {
+            var response = new GeneralResponse();
+
+            using (MySqlConnection conn = new MySqlConnection(Variables.Conexion.cnx))
+            {
+                try
+                {
+                    conn.Open();
+
+                    string sqlUpdate = @"
+                                        UPDATE tbl_cer_usuario 
+                                        SET 
+                                            cer_varchar_nombre        = @Nombre,
+                                            cer_varchar_correo        = @Correo,
+                                            cer_varchar_nro_documento = @Documento,
+                                            cer_varchar_contraseña    = @Contrasena,
+                                            cer_enum_rol              = @Rol,
+                                            cer_enum_tipo_persona     = @TipoPersona,
+                                            cer_varchar_codigo_postal = @CodigoPostal,
+                                            cer_varchar_direccion     = @Direccion,
+                                            cer_varchar_nro_telefono  = @Telefono,
+                                            cer_int_updated_by        = @IdUsuario
+                                        WHERE cer_int_id_usuario = @IdUsuario;";
+
+                    var cmdUpdate = new MySqlCommand(sqlUpdate, conn);
+                    cmdUpdate.Parameters.AddWithValue("@IdUsuario", idUsuario);
+                    cmdUpdate.Parameters.AddWithValue("@Nombre", request.Nombre);
+                    cmdUpdate.Parameters.AddWithValue("@Correo", request.Correo);
+                    cmdUpdate.Parameters.AddWithValue("@Documento", request.NroDocumento);
+                    cmdUpdate.Parameters.AddWithValue("@Contrasena", new Encrypt().Encript(request.Contrasenia));
+                    cmdUpdate.Parameters.AddWithValue("@Rol", request.Cargo ?? "Cliente");
+                    cmdUpdate.Parameters.AddWithValue("@TipoPersona", request.TipoPersona);
+                    cmdUpdate.Parameters.AddWithValue("@CodigoPostal", request.CodigoPostal);
+                    cmdUpdate.Parameters.AddWithValue("@Direccion", request.Direccion);
+                    cmdUpdate.Parameters.AddWithValue("@Telefono", request.Telefono);
+
+                    int rows = cmdUpdate.ExecuteNonQuery();
+
+                    if (rows > 0)
+                    {
+                        response.status = Variables.Response.OK;
+                        response.message = "Cliente actualizado correctamente.";
+                        response.data = true;
+                    }
+                    else
+                    {
+                        response.status = Variables.Response.ERROR;
+                        response.message = "No se encontró el cliente para actualizar.";
+                        response.data = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    response.status = Variables.Response.ERROR;
+                    response.message = "Error al actualizar cliente: " + ex.Message;
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+
+            return response;
+        }
+
+
         public static GeneralResponse ValidarCliente(AgregarUsuarioRequest request)
         {
             var response = new GeneralResponse();

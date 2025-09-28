@@ -18,7 +18,7 @@ namespace microUsuarios.API.Utils.Filters
 
         public void OnException(ExceptionContext context)
         {
-            logger.LogError(new EventId(context.Exception.HResult),
+                logger.LogError(new EventId(context.Exception.HResult),
                 context.Exception,
                 context.Exception.Message);
 

@@ -14,9 +14,14 @@ namespace microUsuarios.API.Model.Request.Validators
                .Must(m => m != String.Empty)
                .WithMessage("Debe ingresar su Nombre.");
 
+
             RuleFor(x => x.Correo)
-               .Must(m => m != String.Empty)
-               .WithMessage("Debe ingresar su Correo electronico.");
+            .NotEmpty()
+            .WithMessage("Debe ingresar su Correo electrónico.")
+            .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+            .WithMessage("Debe ingresar un Correo electrónico válido.");
+
+
 
             RuleFor(x => x.Contrasenia)
                .Must(m => m != String.Empty)

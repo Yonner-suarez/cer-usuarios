@@ -59,13 +59,7 @@ namespace microUsuarios.API.Logic
             }
             //Obtener Carrito al api de pedidos
             var cliente_aux = (ClienteResponse)cliente.data;
-            string token = JWTHelper.GenerarToken(cliente_aux.Id, cliente_aux.Correo, cliente_aux.Rol);
-            var carrito_cliente = await CarritoCliente.ObtenerCarritoAsync(token);
-            if (carrito_cliente?.Items != null)
-            {
-                cliente_aux.Items = carrito_cliente.Items;
-            }
-
+           
             // Retornar en GeneralResponse
             return new GeneralResponse
             {
@@ -73,6 +67,17 @@ namespace microUsuarios.API.Logic
                 message = "Cliente obtenido correctamente",
                 data = cliente_aux
             };
+        }
+        public static GeneralResponse ActualizarCliente(int idUsuario, AgregarUsuarioRequest request)
+        {
+            //Validar que no exista un cliente con correo o numero de doc en la DB
+            var validar = DACliente.ObtenerCliente(idUsuario);
+            if (validar.status != Variables.Response.OK && validar.data is null)
+            {
+                return validar;
+            }
+            var res = DACliente.ActualizarCliente(idUsuario,request);
+            return res;
         }
     }
 }
