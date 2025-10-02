@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: micro-usuarios
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    buildCommand: "" # Render usa el Dockerfile, no msbuild
+    startCommand: "" # Lo toma del ENTRYPOINT
+    envVars:
+      - key: PROJECT_PATH
+        value: microUsuarios.API
+      - key: PROJECT_DLL
+        value: microUsuarios.API.dll

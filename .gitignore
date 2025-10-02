@@ -341,3 +341,10 @@ ASALocalRun/
 healthchecksdb
 /microLeasing/appsettings.Development.json
 .vscode/launch.json
+
+# appsetings 
+C:\Users\Yonne\OneDrive\Desktop\cer project\cer-usuarios\appsettings
+C:\Users\Yonne\OneDrive\Desktop\cer project\cer-usuarios\appsettings.Develpment
+
+# Ignorar solo el appsettings de microInventario.API
+/microInventario.API/appsettings.Development.json
