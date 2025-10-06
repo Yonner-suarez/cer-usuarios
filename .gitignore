@@ -347,4 +347,4 @@ C:\Users\Yonne\OneDrive\Desktop\cer project\cer-usuarios\appsettings
 C:\Users\Yonne\OneDrive\Desktop\cer project\cer-usuarios\appsettings.Develpment
 
 # Ignorar solo el appsettings de microInventario.API
-/microInventario.API/appsettings.Development.json
+/microUsuarios.API/appsettings.Development.json
