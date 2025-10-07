@@ -3,7 +3,6 @@ using microUsuarios.API.Model.Request;
 using microUsuarios.API.Model;
 using microUsuarios.API.Utils;
 using microUsuarios.API.Model.Response;
-using microUsuarios.API.Utils.ApiExterna;
 
 namespace microUsuarios.API.Logic
 {

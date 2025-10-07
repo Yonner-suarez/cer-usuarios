@@ -6,22 +6,61 @@
         /// Se asigna en el startup
         /// </summary>
         public static string env = "appsettings.json";
-        public static int ambiente = int.Parse(new ConfigurationBuilder().AddJsonFile(env).Build().GetSection("AppSettings")["ambiente"]);
+
 
         public static class Conexion
         {
-            //Local
-            public static string cnx = new ConfigurationBuilder().AddJsonFile(env).Build().GetSection("AppSettings")["conexion"];
+            public static string cnx;
+
+            static Conexion()
+            {
+                // Intentamos primero obtener variables del entorno (Render las pone ahí)
+                var host = Environment.GetEnvironmentVariable("DB_HOST");
+                var port = Environment.GetEnvironmentVariable("DB_PORT");
+                var name = Environment.GetEnvironmentVariable("DB_NAME");
+                var user = Environment.GetEnvironmentVariable("DB_USER");
+                var pass = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+                // Si existen (Render), las usamos
+                if (!string.IsNullOrEmpty(host))
+                {
+                    cnx = $"Server={host};Port={port};Database={name};User ID={user};Password={pass};";
+                }
+                else
+                {
+                    // Si estamos en local, leemos del appsettings.json
+                    cnx = new ConfigurationBuilder()
+                        .AddJsonFile(env)
+                        .Build()
+                        .GetSection("AppSettings")["conexion"];
+                }
+            }
         }
-      
+
         public static class Token
         {
-            public static string PasswordHash = new ConfigurationBuilder().AddJsonFile(env).Build().GetSection("AppSettings").GetSection("Token")["PasswordHash"];
-            public static string SaltKey = new ConfigurationBuilder().AddJsonFile(env).Build().GetSection("AppSettings").GetSection("Token")["SaltKey"];
-            public static string VIKey = new ConfigurationBuilder().AddJsonFile(env).Build().GetSection("AppSettings").GetSection("Token")["VIKey"];
-            public static string Bearer = new ConfigurationBuilder().AddJsonFile(env).Build().GetSection("AppSettings").GetSection("Token")["Bearer"];
-            public static string Llave = new ConfigurationBuilder().AddJsonFile(env).Build().GetSection("AppSettings").GetSection("Token")["Llave"];
-            public static int Expiration = int.Parse(new ConfigurationBuilder().AddJsonFile(env).Build().GetSection("AppSettings").GetSection("Token")["Expiration"]);
+            private static IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile(env)
+                .Build();
+
+            public static string PasswordHash = Environment.GetEnvironmentVariable("TOKEN_PASSWORD_HASH")
+                ?? config.GetSection("AppSettings").GetSection("Token")["PasswordHash"];
+
+            public static string SaltKey = Environment.GetEnvironmentVariable("TOKEN_SALT_KEY")
+                ?? config.GetSection("AppSettings").GetSection("Token")["SaltKey"];
+
+            public static string VIKey = Environment.GetEnvironmentVariable("TOKEN_VI_KEY")
+                ?? config.GetSection("AppSettings").GetSection("Token")["VIKey"];
+
+            public static string Bearer = Environment.GetEnvironmentVariable("TOKEN_BEARER")
+                ?? config.GetSection("AppSettings").GetSection("Token")["Bearer"];
+
+            public static string Llave = Environment.GetEnvironmentVariable("TOKEN_KEY")
+                ?? config.GetSection("AppSettings").GetSection("Token")["Llave"];
+
+            public static int Expiration = int.TryParse(Environment.GetEnvironmentVariable("TOKEN_EXPIRATION"), out int exp)
+                ? exp
+                : int.Parse(config.GetSection("AppSettings").GetSection("Token")["Expiration"]);
         }
         public static class TipoPersona
         {
