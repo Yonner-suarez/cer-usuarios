@@ -5,8 +5,6 @@ services:
     plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
-    buildCommand: "" # Render usa el Dockerfile, no msbuild
-    startCommand: "" # Lo toma del ENTRYPOINT
     envVars:
       - key: PROJECT_PATH
         value: microUsuarios.API
