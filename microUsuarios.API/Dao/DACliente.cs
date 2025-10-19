@@ -196,7 +196,9 @@ namespace microUsuarios.API.Dao
 
                     response.status = Variables.Response.OK;
                     response.message = "Cliente creado correctamente.";
-                    response.data = true;
+                    int idUsuario = Convert.ToInt32(nuevoId);
+                    string token = JWTHelper.GenerarToken(idUsuario, request.Correo, "Cliente");
+                    response.data = token;
                 }
                 catch (Exception ex)
                 {
